@@ -1,15 +1,11 @@
 name: Terraform Plan
 
 on:
-  push:
-    branches:
-      - 'feature/**'
-    paths:
-      - 'terraform/**'
-
   pull_request:
     branches:
       - main
+    paths:
+      - 'terraform/**'
 
 env:
   AWS_REGION: us-east-1
