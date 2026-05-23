@@ -1,5 +1,5 @@
 # Resource: EC2 Instance
-resource "aws_instance" "bastion_host_1" {
+resource "aws_instance" "bastion_host" {
   ami                    = var.ec2_ami
   instance_type          = var.instance_type
   key_name               = var.ec2_key_pair
