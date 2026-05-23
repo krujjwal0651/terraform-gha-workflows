@@ -1,67 +1,30 @@
-name: Terraform Dev Deployment
+name: Connect to an AWS role from a GitHub repository
 
 on:
   push:
-    branches:
-      - dev
-    paths:
-      - 'terraform/**'
-      - '.github/workflows/terraform-dev.yml'
-
+    branches: [ main ]
   pull_request:
-    branches:
-      - dev
-    paths:
-      - 'terraform/**'
-
-  workflow_dispatch:
+    branches: [ main ]
 
 env:
-  AWS_REGION: us-east-1
-  TF_VERSION: 1.8.5
-  TF_WORKING_DIR: terraform/environments/dev
+  AWS_REGION : "us-east-1"
 
+permissions:
+      id-token: write   # This is required for requesting the JWT
+      contents: read    # This is required for actions/checkout
 jobs:
-  terraform:
-    name: Terraform Dev
+  AssumeRoleAndCallIdentity:
     runs-on: ubuntu-latest
-
-    permissions:
-      id-token: write
-      contents: read
-
-    defaults:
-      run:
-        working-directory: ${{ env.TF_WORKING_DIR }}
-
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
+      - name: Git clone the repository
+        uses: actions/checkout@v3
+      - name: configure aws credentials
+        uses: aws-actions/configure-aws-credentials@v1.7.0
         with:
-          role-to-assume: arn:aws:iam::<AWS_ACCOUNT_ID>:role/github-actions-terraform-role
+          role-to-assume: arn:aws:iam::797666781322:role/GitHubAction-AssumeRoleWithAction
+          role-session-name: GitHub_to_AWS_via_FederatedOIDC
           aws-region: ${{ env.AWS_REGION }}
-
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_version: ${{ env.TF_VERSION }}
-
-      - name: Terraform Format Check
-        run: terraform fmt -check -recursive
-
-      - name: Terraform Init
-        run: terraform init
-
-      - name: Terraform Validate
-        run: terraform validate
-
-      - name: Terraform Plan
-        run: terraform plan -out=tfplan
-
-      # Apply only on push to dev branch
-      - name: Terraform Apply
-        if: github.event_name == 'push'
-        run: terraform apply -auto-approve tfplan
+      # Hello from AWS: WhoAmI
+      - name: Sts GetCallerIdentity
+        run: |
+          aws sts get-caller-identity
