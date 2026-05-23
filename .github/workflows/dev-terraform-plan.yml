@@ -59,4 +59,17 @@ jobs:
         run: terraform validate
 
       - name: Terraform Plan
-        run: terraform plan
+        run: |
+          terraform plan -detailed-exitcode -out=tfplan
+          exitcode=$?
+
+          if [ $exitcode -eq 1 ]; then
+            echo "Terraform plan failed"
+            exit 1
+          elif [ $exitcode -eq 2 ]; then
+            echo "Terraform changes detected"
+            exit 0
+          else
+            echo "No Terraform changes"
+            exit 0
+          fi
