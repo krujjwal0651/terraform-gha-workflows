@@ -61,6 +61,7 @@ jobs:
       - name: Terraform Plan
         run: |
           terraform plan -detailed-exitcode -out=tfplan
+          terraform show -no-color tfplan > tfplan.txt
           exitcode=$?
 
           if [ $exitcode -eq 1 ]; then
