@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - 'feature/**'
+    paths:
+      - 'terraform/**'
 
   pull_request:
     branches:
